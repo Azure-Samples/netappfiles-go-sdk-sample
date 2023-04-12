@@ -23,8 +23,8 @@ import (
 
 	"github.com/Azure-Samples/netappfiles-go-sdk-sample/netappfiles-go-sdk-sample/internal/sdkutils"
 	"github.com/Azure-Samples/netappfiles-go-sdk-sample/netappfiles-go-sdk-sample/internal/utils"
-	"github.com/Azure/azure-sdk-for-go/profiles/latest/netapp/mgmt/netapp"
-	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/netapp/armnetapp"
 	"github.com/yelinaung/go-haikunator"
 )
 
@@ -51,8 +51,8 @@ var (
 	nfsv3VolumeNameFromSnap string = fmt.Sprintf("NFSv3-FromSnapshot-Vol-%v-%v", anfAccountName, capacityPoolName)
 	nfsv41VolumeName        string = fmt.Sprintf("NFSv41-Vol-%v-%v", anfAccountName, capacityPoolName)
 	sampleTags                     = map[string]*string{
-		"Author":  to.StringPtr("ANF Go SDK Sample"),
-		"Service": to.StringPtr("Azure Netapp Files"),
+		"Author":  to.Ptr("ANF Go SDK Sample"),
+		"Service": to.Ptr("Azure Netapp Files"),
 	}
 	exitCode                  int
 	snapshotID                string = ""
@@ -150,7 +150,7 @@ func main() {
 		false,
 		true,
 		sampleTags,
-		netapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
+		armnetapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
 	)
 	if err != nil {
 		utils.ConsoleOutput(fmt.Sprintf("an error ocurred while creating NFSv3 volume: %v", err))
@@ -177,7 +177,7 @@ func main() {
 		false,
 		true,
 		sampleTags,
-		netapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
+		armnetapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
 	)
 	if err != nil {
 		utils.ConsoleOutput(fmt.Sprintf("an error ocurred while creating NFSv4.1 volume: %v", err))
@@ -222,13 +222,13 @@ func main() {
 		nfsv3VolumeNameFromSnap,
 		serviceLevel,
 		subnetID,
-		*snapshot.SnapshotID,
+		*snapshot.Properties.SnapshotID,
 		nfsv3ProtocolTypes,
 		volumeSizeBytes,
 		false,
 		true,
 		sampleTags,
-		netapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
+		armnetapp.VolumePropertiesDataProtection{}, // This empty object is provided as nil since dataprotection is not scope of this sample
 	)
 	if err != nil {
 		utils.ConsoleOutput(fmt.Sprintf("an error ocurred while creating NFSv3 volume from snapshot: %v", err))
@@ -242,7 +242,7 @@ func main() {
 	utils.ConsoleOutput("Updating NFSv4.1 volume size...")
 
 	newVolumeSize := volumeSizeBytes * int64(2)
-	volumeChanges := netapp.VolumePatchProperties{
+	volumeChanges := armnetapp.VolumePatchProperties{
 		UsageThreshold: &newVolumeSize,
 	}
 
