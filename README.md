@@ -39,32 +39,24 @@ If you don't already have a Microsoft Azure subscription, you can get a FREE tri
 5. Resource Group created
 6. Virtual Network with a delegated subnet to Microsoft.Netapp/volumes resource. For more information, please refer to [Guidelines for Azure NetApp Files network planning](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-network-topologies)
 7. Adjust variable contents within `var()` block at `example.go` file to match your environment
-8. For this sample Go console application work, we need to authenticate and the chosen method for this sample is using service principals.
-   1. Within an [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/quickstart) session, make sure you're logged on at the subscription where you want to be associated with the service principal by default:
+8. For this sample Go console application work, we need to authenticate through az cli.
+   1. From terminal perform login to your Azure account:
             ```bash
-            az account show
+            az login
            ```
-             If this is not the correct subscription, use             
+             and Set the subscription to be used, use
              ```bash
             az account set -s <subscription name or id>  
             ```
-        1. Create a service principal using Azure CLI
-            ```bash
-            az ad sp create-for-rbac --sdk-auth
-            ```
-
-            >Note: this command will automatically assign RBAC contributor role to the service principal at subscription level, you can narrow down the scope to the specific resource group where your tests will create the resources.
-
-        2. Copy the output content and paste it in a file called azureauth.json and secure it with file system permissions
-        3. Set an environment variable pointing to the file path you just created, here is an example with Powershell and bash:
-            Powershell 
-            ```powershell
-           [Environment]::SetEnvironmentVariable("AZURE_AUTH_LOCATION", "C:\sdksample\azureauth.json", "User")
-            ```
-            Bash
-            ```bash
-           export AZURE_AUTH_LOCATION=/sdksamples/azureauth.json
-           ``` 
+   2. Set the subscription ID environment variable:
+        ```bash
+        # PowerShell example
+        $env:AZURE_SUBSCRIPTION_ID="<your subscription id>"
+        ```
+        ```bash
+        # Bash example
+        export AZURE_SUBSCRIPTION_ID="<your subscription id>"
+        ```
 
         >Note: for other Azure Active Directory authentication methods for Go, please refer to [Authentication methods in the Azure SDK for Go](https://docs.microsoft.com/en-us/azure/go/azure-sdk-go-authorization). 
 
@@ -74,7 +66,7 @@ Currently, Azure NetApp Files SDK exposes control plane management operations, C
 
 >Note: Please refer to [Resource limits for Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-resource-limits) to understand ANF's most current limits.
 
-Next, it will move forward and obtain some non-sensitive information from the *file-based authentication* file that is used at the initial stages to identify the subscription ID for the test we perform to check if the subnet provided exists before starting creating any ANF resource. Authentication is made on each operation where we obtain an authorizer to pass to each client we instantiate (in Azure Go SDK for NetAppFiles each resource has its own client). For more information about the authentication process used, refer to [Use file-based authentication](https://docs.microsoft.com/en-us/azure/go/azure-sdk-go-authorization#use-file-based-authentication) section of [Authentication methods in the Azure SDK for Go](https://docs.microsoft.com/en-us/azure/go/azure-sdk-go-authorization) document.
+Next, it will move forward and obtain the subscription ID for the test we perform to check if the subnet provided exists before starting creating any ANF resource. Authentication is made on each operation where we obtain an authorizer to pass to each client we instantiate (in Azure Go SDK for NetAppFiles each resource has its own client). For more information about the authentication process used, refer to [Authentication methods in the Azure SDK for Go](https://docs.microsoft.com/en-us/azure/go/azure-sdk-go-authorization) document.
 
 Then, it will start the CRUD operations by creating one account, then capacity pool, volumes, snapshot and volume from snapshot, in this exact sequence \(for more information about Azure NetApp Files storage hierarchy please refer to [this](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-understand-storage-hierarchy) document\). After all resources are created, it will perform an update to a volume by changing its usage threshold (size) doubling its size in this example.
 
